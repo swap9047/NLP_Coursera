@@ -41,7 +41,12 @@ def load_embeddings(embeddings_path):
       embeddings - dict mapping words to vectors;
       embeddings_dim - dimension of the vectors.
     """
-    
+    embed={}
+    with open(embeddings_path) as f:
+        for line in f:
+            (key,value)=line.split()
+            embed[key]=value
+        embed_dim=len(value)
     # Hint: you have already implemented a similar routine in the 3rd assignment.
     # Note that here you also need to know the dimension of the loaded embedings.
 
@@ -49,7 +54,7 @@ def load_embeddings(embeddings_path):
     #### YOUR CODE HERE ####
     ########################
 
-        pass 
+    return (embed,embed_dim) 
 
 def question_to_vec(question, embeddings, dim):
     """Transforms a string to an embedding by averaging word embeddings."""
@@ -59,8 +64,20 @@ def question_to_vec(question, embeddings, dim):
     ########################
     #### YOUR CODE HERE ####
     ########################
+    mean_vec=np.zeros(dim)
+    j=0
+    ######################################
+    ######### YOUR CODE HERE #############
+    ######################################
+    for i in question.split():
+        if i in embeddings:
+            mean_vec+=embeddings[i]
+            j+=1
+    if j==0:
+        return 0
+    else:
+        return mean_vec/j
 
-        pass
 
 
 def unpickle_file(filename):
