@@ -23,8 +23,8 @@ class ThreadRanker(object):
 
         # HINT: you have already implemented a similar routine in the 3rd assignment.
         
-        question_vec = #### YOUR CODE HERE ####
-        best_thread = #### YOUR CODE HERE ####
+        question_vec =question_to_vec(question,self.word_embeddings, self.embeddings_dim) #### YOUR CODE HERE ####
+        best_thread = pairwise_distances_argmin(question_vec,thread_embeddings)#### YOUR CODE HERE ####
         
         return thread_ids[best_thread]
 
@@ -48,6 +48,11 @@ class DialogueManager(object):
 
         # Hint: you might want to create and train chatterbot.ChatBot here.
         
+        self.chatbot_bot = ChatBot(
+        'Ron Obvious',
+        trainer='chatterbot.trainers.ChatterBotCorpusTrainer'
+        )
+        self.chatbot_bot.train("chatterbot.corpus.english")
         ########################
         #### YOUR CODE HERE ####
         ########################
@@ -58,23 +63,23 @@ class DialogueManager(object):
         # Recognize intent of the question using `intent_recognizer`.
         # Don't forget to prepare question and calculate features for the question.
         
-        prepared_question = #### YOUR CODE HERE ####
-        features = #### YOUR CODE HERE ####
-        intent = #### YOUR CODE HERE ####
+        prepared_question = text_prepare(question)#### YOUR CODE HERE ####
+        features = self.tfidf_vectorizer(prepared_question)#### YOUR CODE HERE ####
+        intent = intent_recognizer.predict(features)#### YOUR CODE HERE ####
 
         # Chit-chat part:   
         if intent == 'dialogue':
             # Pass question to chitchat_bot to generate a response.       
-            response = #### YOUR CODE HERE ####
+            response = self.chatbot_bot.get_response(prepared_question)#### YOUR CODE HERE ####
             return response
         
         # Goal-oriented part:
         else:        
             # Pass features to tag_clasifier to get predictions.
-            tag = #### YOUR CODE HERE ####
+            tag =self.tag_classifier.predict(features)#### YOUR CODE HERE ####
             
             # Pass prepared_question to thread_ranker to get predictions.
-            thread_id = #### YOUR CODE HERE ####
+            thread_id = self.thread_ranker.get_best_thread(prepared_question,tag)#### YOUR CODE HERE ####
            
             return self.ANSWER_TEMPLATE % (tag, thread_id)
 

@@ -49,8 +49,11 @@ def load_embeddings(embeddings_path):
 #         embed_dim=len(value)
     import gensim
     from gensim.models import KeyedVectors
-    embeddings=KeyedVectors.load_word2vec_format(embeddings_path, limit=500000,binary=True)
-    embed_dim=len(embeddings.items
+    wv_embeddings = word_vectors = KeyedVectors.load_word2vec_format(embeddings_path, limit=500000,binary=True) 
+    ls=word_vectors.index2word
+    embed={}
+    embed={word:word_vectors[word] for word in word_vectors.index2word }
+    embed_dim=len(next(iter(embed.values())))
     # Hint: you have already implemented a similar routine in the 3rd assignment.
     # Note that here you also need to know the dimension of the loaded embedings.
 
