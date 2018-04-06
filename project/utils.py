@@ -12,7 +12,7 @@ RESOURCE_PATH = {
     'TAG_CLASSIFIER': 'tag_classifier.pkl',
     'TFIDF_VECTORIZER': 'tfidf_vectorizer.pkl',
     'THREAD_EMBEDDINGS_FOLDER': 'thread_embeddings_by_tags',
-    'WORD_EMBEDDINGS': 'vectors.gz',
+    'WORD_EMBEDDINGS': 'starspace_embedding.tsv',
 }
 
 
@@ -47,13 +47,22 @@ def load_embeddings(embeddings_path):
 #             (key,value)=line.split()
 #             embed[key]=value
 #         embed_dim=len(value)
-    import gensim
-    from gensim.models import KeyedVectors
-    wv_embeddings = word_vectors = KeyedVectors.load_word2vec_format(embeddings_path, limit=500000,binary=True) 
-    ls=word_vectors.index2word
+#     import gensim
+#     from gensim.models import KeyedVectors
+#     wv_embeddings = word_vectors = KeyedVectors.load_word2vec_format(embeddings_path, limit=500000,binary=True) 
+#     ls=word_vectors.index2word
+#     embed={}
+#     embed={word:word_vectors[word] for word in word_vectors.index2word }
+#     embed_dim=len(next(iter(embed.values())))
+    import csv
     embed={}
-    embed={word:word_vectors[word] for word in word_vectors.index2word }
-    embed_dim=len(next(iter(embed.values())))
+
+    with open(embeddings_path) as tsvfile:
+        reader = csv.reader(tsvfile, delimiter='\t')
+        for row in reader:
+            embed[row[0]]=np.array(row[1:])
+        embed_dim=len(row)-1
+        
     # Hint: you have already implemented a similar routine in the 3rd assignment.
     # Note that here you also need to know the dimension of the loaded embedings.
 
@@ -71,19 +80,19 @@ def question_to_vec(question, embeddings, dim):
     ########################
     #### YOUR CODE HERE ####
     ########################
-    mean_vec=np.zeros(dim)
+    mean_vec=np.zeros(dim,dtype=np.float64)
     j=0
     ######################################
     ######### YOUR CODE HERE #############
     ######################################
-    for i in question.split():
+    for i in question.split(' '):
         if i in embeddings:
-            mean_vec+=embeddings[i]
+            mean_vec+=np.array(embeddings[i],dtype=np.float64)
             j+=1
     if j==0:
         return 0
     else:
-        return mean_vec/j
+        return (mean_vec/j)
 
 
 
